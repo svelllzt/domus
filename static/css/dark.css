@@ -1,0 +1,50 @@
+:root.dark-theme {
+  --bg-page: #15100b;
+  --bg-card: #241810;
+  --bg-card-body: #1f140d;
+  --bg-muted: #2a1d14;
+  --bg-input: #2c1f16;
+  --bg-input-focus: #1e1e1e;
+  --bg-chip: rgba(241, 140, 46, 0.2);
+  --bg-pill: #38261b;
+
+  --text-primary: #f8e5cf;
+  --text-secondary: #d0b08c;
+  --text-tertiary: #8f755f;
+  --text-on-primary: #ffffff;
+
+  --accent: #f3a24f;
+  --accent-hover: #ffb76f;
+  --accent-soft: rgba(243, 162, 79, 0.18);
+
+  --border-subtle: #3d2b1f;
+  --border-header: #3f2c1f;
+
+  --success: #4a9c5d;
+  --warning: #d4a843;
+  --danger: #d4554c;
+  --link: #ffbe7a;
+
+  --shadow-card: 0 16px 30px rgba(0, 0, 0, 0.35);
+  --shadow-card-hover: 0 22px 36px rgba(0, 0, 0, 0.45);
+  --shadow-dropdown: 0 18px 30px rgba(0, 0, 0, 0.45);
+  --shadow-search-focus: 0 0 0 4px rgba(243, 162, 79, 0.24);
+
+  --photo-block: #352519;
+}
+
+.dark-theme body {
+  background-image: radial-gradient(circle at top right, rgba(243, 162, 79, 0.14), transparent 45%);
+}
+
+.dark-theme .hero {
+  background: linear-gradient(125deg, #2f2118 0%, #3a281b 55%, #4a321f 100%);
+}
+
+.dark-theme .animal-card {
+  background: linear-gradient(180deg, #2b1c12 0%, #241810 100%);
+}
+
+.dark-theme .animal-card__meta {
+  color: rgba(248, 229, 207, 0.78);
+}

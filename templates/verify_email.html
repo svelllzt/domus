@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Подтверждение email{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+    <h1>Подтверждение email</h1>
+    {% if error %}<p class="alert error">{{ error }}</p>{% endif %}
+    {% if success %}<p class="alert success">{{ success }}</p>{% endif %}
+    <form method="post" action="/auth/verify-email" class="card">
+        <input type="email" name="email" placeholder="Email" value="{{ email or '' }}" required>
+        <input type="text" name="code" placeholder="Код из письма (6 цифр)" minlength="6" maxlength="6" inputmode="numeric" required>
+        <button class="btn btn--primary" type="submit">Подтвердить</button>
+        <button class="btn btn--outline" type="submit" formaction="/auth/verify-email/resend">Отправить код повторно</button>
+        {% if retry_after %}<p class="text-muted">Повторная отправка доступна через {{ retry_after }} сек.</p>{% endif %}
+        <a class="btn btn--link" href="/auth/login">Назад ко входу</a>
+    </form>
+</section>
+{% endblock %}

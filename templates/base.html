@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Поиск питомцев{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/base.css" id="theme-base">
+    <link rel="stylesheet" href="/static/css/dark.css" id="theme-dark" disabled>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="nav-inner">
+        <a class="brand" href="/">
+            <span class="brand__mark" aria-hidden="true">🐾</span>
+            <span class="brand__text">domus</span>
+        </a>
+        <nav class="nav-main" aria-label="Основное меню">
+            <a href="/search">Поиск</a>
+            <a href="/about">О проекте</a>
+            {% if user %}
+                {% if user.role == 'global_admin' %}
+                    <a href="/admin/dashboard">Админка</a>
+                {% elif user.role in ['shelter_admin', 'shelter_staff'] %}
+                    <a href="/shelter/dashboard">ЛК приюта</a>
+                {% else %}
+                    <a href="/user/dashboard">Мой кабинет</a>
+                {% endif %}
+            {% endif %}
+        </nav>
+        <div class="nav-actions">
+            {% if user %}
+                <form action="/auth/logout" method="post">
+                    <button class="btn btn--outline btn--sm" type="submit">Выйти</button>
+                </form>
+            {% else %}
+                <a class="btn btn--outline btn--sm" href="/auth/login">Войти</a>
+                <a class="btn btn--primary btn--sm" href="/auth/register">Регистрация</a>
+            {% endif %}
+            <div class="theme-switcher" role="group" aria-label="Тема оформления">
+                <button type="button" class="theme-btn" data-theme="light" title="Светлая тема"><i class="fa-solid fa-sun" aria-hidden="true"></i></button>
+                <button type="button" class="theme-btn" data-theme="dark" title="Тёмная тема"><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
+                <button type="button" class="theme-btn" data-theme="system" title="Системная тема"><i class="fa-solid fa-desktop" aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </div>
+</header>
+<main class="layout-shell">
+    {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+    <div class="layout-shell">Поиск питомцев из приютов · 2026</div>
+</footer>
+<script src="/static/js/theme.js"></script>
+<script src="/static/js/favorites.js"></script>
+<script src="/static/js/main.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Главная — domus{% endblock %}
+{% block content %}
+<section class="hero">
+    <h1>Найдите питомца из приюта</h1>
+    <p>Фильтры по виду, возрасту и городу. Анкеты от проверенных приютов.</p>
+    <a class="btn btn--primary" href="/search">Начать поиск</a>
+</section>
+
+<section class="section-head">
+    <h2>Анкеты</h2>
+</section>
+<div class="animal-grid" id="animal-grid">
+    {% for animal in animals %}
+    {% with stagger=loop.index0 %}
+    {% include "partials/animal_card.html" %}
+    {% endwith %}
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% set sp = animal.species or '' %}
+{% set species_ru = 'Собака' if sp == 'dog' else ('Кошка' if sp == 'cat' else sp) %}
+{% set sz = animal.size or 'medium' %}
+{% set size_ru = 'Маленький' if sz == 'small' else ('Крупный' if sz == 'large' else 'Средний') %}
+{% set st = animal.status or 'available' %}
+{% if st == 'available' %}
+  {% set st_class = 'animal-card__status--available' %}
+  {% set st_label = 'Доступен' %}
+{% elif st == 'processing' %}
+  {% set st_class = 'animal-card__status--processing' %}
+  {% set st_label = 'В процессе' %}
+{% else %}
+  {% set st_class = 'animal-card__status--adopted' %}
+  {% set st_label = 'Пристроен' %}
+{% endif %}
+{% set show_fav = show_favorite if show_favorite is defined else (not user or user.role == 'user') %}
+{% set is_favorite = animal.is_favorite if animal.is_favorite is defined else false %}
+<article class="animal-card" style="--stagger: {{ stagger|default(0) }}">
+  <div class="animal-card__media">
+    <a class="animal-card__media-link" href="/animals/{{ animal.id }}" aria-label="Открыть анкету {{ animal.name }}"></a>
+    <span class="animal-card__status {{ st_class }}">{{ st_label }}</span>
+    {% if show_fav %}
+    <button type="button" class="fav-btn animal-card__fav" data-animal-id="{{ animal.id }}" aria-label="В избранное">
+      {% if is_favorite %}<i class="fa-solid fa-heart"></i>{% else %}<i class="fa-regular fa-heart"></i>{% endif %}
+    </button>
+    {% endif %}
+    <div class="animal-card__photo">
+      <img src="/static/uploads/{{ animal.main_photo or 'placeholder.svg' }}" alt="" loading="lazy" width="300" height="400">
+    </div>
+  </div>
+  <div class="animal-card__body">
+    <a class="animal-card__title" href="/animals/{{ animal.id }}">{{ animal.name|capitalize }}</a>
+    <p class="animal-card__meta">{{ species_ru }} · {% if animal.age is not none %}{% set n = animal.age|int %}{{ n }}{% if n % 10 == 1 and n % 100 != 11 %} год{% elif n % 10 in [2,3,4] and (n % 100 < 10 or n % 100 > 20) %} года{% else %} лет{% endif %}{% else %}—{% endif %} · {{ size_ru }}</p>
+    <span class="animal-card__pill">{{ animal.shelter_name or 'Приют' }}</span>
+  </div>
+</article>

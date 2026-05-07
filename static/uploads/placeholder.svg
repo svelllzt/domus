@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+  <rect width="640" height="420" fill="#f3e6de"/>
+  <circle cx="320" cy="175" r="86" fill="#d7b09f"/>
+  <circle cx="278" cy="155" r="12" fill="#6b4c40"/>
+  <circle cx="362" cy="155" r="12" fill="#6b4c40"/>
+  <ellipse cx="320" cy="195" rx="24" ry="16" fill="#6b4c40"/>
+  <text x="320" y="320" text-anchor="middle" fill="#8b5d4c" font-family="Inter, system-ui, sans-serif" font-size="28">Фото скоро появится</text>
+</svg>

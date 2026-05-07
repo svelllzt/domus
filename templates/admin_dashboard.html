@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Админ-панель{% endblock %}
+{% block content %}
+<section>
+    <h1>Глобальная админ-панель</h1>
+
+    <div class="card mb-lg">
+        <h2>SMTP</h2>
+        {% if smtp_result == "saved" %}<p class="alert success">Настройки SMTP сохранены.</p>{% endif %}
+        {% if smtp_result == "test_sent" %}<p class="alert success">Тестовое письмо отправлено.</p>{% endif %}
+        {% if smtp_result == "cleared" %}<p class="alert success">SMTP-конфиг очищен.</p>{% endif %}
+        {% if smtp_error == "send_failed" %}<p class="alert error">Не удалось отправить тестовое письмо. Проверьте SMTP-конфиг.</p>{% endif %}
+        <p class="text-muted">Статус: {% if smtp.configured %}настроено{% else %}не настроено{% endif %}</p>
+        <form method="post" action="/admin/smtp-settings" class="form-card">
+            <input name="host" placeholder="SMTP host" value="{{ smtp.host }}" required>
+            <input name="port" type="number" min="1" max="65535" placeholder="SMTP port" value="{{ smtp.port or 587 }}" required>
+            <input name="username" placeholder="SMTP username" value="{{ smtp.username }}">
+            <input name="password" type="password" placeholder="SMTP password (оставьте пустым, чтобы не менять)">
+            <input name="from_email" type="email" placeholder="От кого (email)" value="{{ smtp.from_email }}" required>
+            <input name="from_name" placeholder="От кого (имя)" value="{{ smtp.from_name }}">
+            <select name="security">
+                <option value="starttls" {% if smtp.security == "starttls" %}selected{% endif %}>STARTTLS</option>
+                <option value="ssl" {% if smtp.security == "ssl" %}selected{% endif %}>SSL</option>
+                <option value="none" {% if smtp.security == "none" %}selected{% endif %}>Без шифрования</option>
+            </select>
+            <button class="btn btn--primary" type="submit">Сохранить SMTP</button>
+        </form>
+
+        <form method="post" action="/admin/smtp-settings/test" class="form-card">
+            <h3>Проверка отправки</h3>
+            <input type="email" name="test_email" placeholder="Email для теста" required>
+            <button class="btn btn--outline" type="submit">Отправить тестовое письмо</button>
+        </form>
+
+        <form method="post" action="/admin/smtp-settings/clear" class="form-card">
+            <h3>Очистка конфига</h3>
+            <p class="text-muted">Сбросит host, порт, логин, пароль и отправителя.</p>
+            <button class="btn btn--danger" type="submit">Очистить SMTP-конфиг</button>
+        </form>
+    </div>
+
+    <h2>Заявки на регистрацию приютов</h2>
+    <div class="table-wrap">
+        <table>
+            <tr><th>Пользователь</th><th>Приют</th><th>Город</th><th>Статус</th><th>Действия</th></tr>
+            {% for row in requests %}
+            <tr>
+                <td>{{ row.user_name }}<br>{{ row.user_email }}</td>
+                <td>{{ row.shelter_name }}</td>
+                <td>{{ row.shelter_city }}</td>
+                <td>{{ row.status }}</td>
+                <td>
+                    {% if row.status == 'new' %}
+                    <form method="post" action="/admin/registration-request/{{ row.id }}/approve">
+                        <input name="admin_comment" placeholder="Комментарий">
+                        <button class="btn btn--primary btn--sm" type="submit">Одобрить</button>
+                    </form>
+                    <form method="post" action="/admin/registration-request/{{ row.id }}/reject">
+                        <input name="admin_comment" placeholder="Причина отказа" required>
+                        <button class="btn btn--danger btn--sm" type="submit">Отклонить</button>
+                    </form>
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+    <h1>Вход</h1>
+    {% if error %}<p class="alert error">{{ error }}</p>{% endif %}
+    {% if success %}<p class="alert success">{{ success }}</p>{% endif %}
+    <form method="post" action="/auth/login" class="card">
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+        <button class="btn btn--primary" type="submit">Войти</button>
+        <a class="btn btn--outline" href="/auth/register">Создать аккаунт</a>
+        <a class="btn btn--link" href="/auth/restore-password">Забыли пароль?</a>
+    </form>
+</section>
+{% endblock %}

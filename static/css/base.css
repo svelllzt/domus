@@ -1,0 +1,63 @@
+:root {
+  --font-sans: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --fs-body: 18px;
+  --fs-h1: clamp(36px, 4.8vw, 54px);
+  --fs-h2: clamp(30px, 3.2vw, 40px);
+  --fs-h3: 24px;
+  --fs-small: 15px;
+  --fs-meta: 16px;
+  --fs-pill: 13px;
+  --fs-chip: 15px;
+  --fs-link: 15px;
+  --fs-nav: 16px;
+  --fs-brand: 24px;
+
+  --lh-text: 1.65;
+  --lh-heading: 1.2;
+  --space-p: 14px;
+
+  --bg-page: #fff7ef;
+  --bg-card: #ffffff;
+  --bg-card-body: #fffdfa;
+  --bg-muted: #fff2df;
+  --bg-input: #fff9f1;
+  --bg-input-focus: #ffffff;
+  --bg-chip: #fff0db;
+  --bg-pill: #ffe8c8;
+  --photo-block: #ffeed6;
+
+  --text-primary: #2d2118;
+  --text-secondary: #6f5642;
+  --text-tertiary: #a48770;
+  --text-on-primary: #ffffff;
+
+  --accent: #f18c2e;
+  --accent-hover: #db7821;
+  --accent-soft: #ffe8c7;
+
+  --border-subtle: #f3dabc;
+  --border-header: #f4d9b6;
+  --border-focus: var(--accent);
+
+  --success: #4a9c5d;
+  --warning: #c08a15;
+  --danger: #d4554c;
+  --link: #be6f2b;
+
+  --shadow-card: 0 12px 28px rgba(176, 109, 37, 0.08);
+  --shadow-card-hover: 0 20px 34px rgba(176, 109, 37, 0.14);
+  --shadow-dropdown: 0 14px 28px rgba(68, 39, 13, 0.14);
+  --shadow-search-focus: 0 0 0 4px rgba(241, 140, 46, 0.18);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-pill: 999px;
+  --radius-search: 999px;
+
+  --header-h: 74px;
+  --search-h: 54px;
+  --btn-h: 42px;
+  --btn-h-sm: 36px;
+  --btn-h-lg: 50px;
+}

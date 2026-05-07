@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Заявка на регистрацию приюта{% endblock %}
+{% block content %}
+<section>
+    <h1>Регистрация приюта</h1>
+    <p>После одобрения администратором вы получите доступ к управлению анкетами животных.</p>
+    <form class="card" method="post" action="/shelter/registration-request">
+        <input name="shelter_name" placeholder="Название приюта" required>
+        <input name="shelter_city" placeholder="Город">
+        <input name="shelter_address" placeholder="Адрес">
+        <input name="shelter_phone" placeholder="Телефон">
+        <textarea name="shelter_description" placeholder="Описание приюта"></textarea>
+        <input name="applicant_position" placeholder="Ваша должность">
+        <textarea name="comment" placeholder="Комментарий"></textarea>
+        <button class="btn btn--primary" type="submit">Отправить заявку</button>
+    </form>
+    <h2>Мои заявки</h2>
+    <div class="table-wrap">
+        <table>
+            <tr><th>Приют</th><th>Статус</th><th>Комментарий админа</th><th>Дата</th></tr>
+            {% for row in requests %}
+            <tr><td>{{ row.shelter_name }}</td><td>{{ row.status }}</td><td>{{ row.admin_comment or '-' }}</td><td>{{ row.created_at }}</td></tr>
+            {% else %}
+            <tr><td colspan="4">Заявок пока нет</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

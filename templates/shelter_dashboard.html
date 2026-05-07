@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}ЛК приюта{% endblock %}
+{% block content %}
+<section>
+    <h1>Личный кабинет приюта</h1>
+    <div class="stats">
+        <div class="stat-card">Всего анкет<strong>{{ report.total_animals }}</strong></div>
+        <div class="stat-card">Доступно<strong>{{ report.available }}</strong></div>
+        <div class="stat-card">В процессе<strong>{{ report.processing }}</strong></div>
+        <div class="stat-card">Пристроено<strong>{{ report.adopted }}</strong></div>
+        <div class="stat-card">Заявок<strong>{{ report.applications }}</strong></div>
+    </div>
+</section>
+<section>
+    <h2>Добавить питомца</h2>
+    <form class="card" method="post" action="/shelter/animals/create" enctype="multipart/form-data">
+        <input name="name" placeholder="Имя" required>
+        <select name="species" required>
+            <option value="" selected disabled>Вид питомца</option>
+            <option value="cat">Кошка</option>
+            <option value="dog">Собака</option>
+        </select>
+        <input name="breed" placeholder="Порода">
+        <input name="age" type="number" min="0" placeholder="Возраст">
+        <select name="sex"><option value="unknown">Не указан</option><option value="male">Мальчик</option><option value="female">Девочка</option></select>
+        <select name="size"><option value="small">Маленький</option><option value="medium">Средний</option><option value="large">Крупный</option></select>
+        <input name="color" placeholder="Окрас">
+        <input name="health" placeholder="Здоровье">
+        <input name="temperament" placeholder="Характер">
+        <textarea name="description" placeholder="Описание"></textarea>
+        <label><input type="checkbox" name="compatible_with_children"> Дружит с детьми</label>
+        <label><input type="checkbox" name="compatible_with_animals"> Дружит с животными</label>
+        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp">
+        <button class="btn btn--primary" type="submit">Добавить</button>
+    </form>
+</section>
+<section>
+    <h2>Мои анкеты питомцев</h2>
+    <div class="card">
+        {% for animal in animals %}
+        {% set species_ru = 'Собака' if animal.species == 'dog' else ('Кошка' if animal.species == 'cat' else animal.species) %}
+        {% set sex_ru = 'Мальчик' if animal.sex == 'male' else ('Девочка' if animal.sex == 'female' else 'Не указан') %}
+        {% set size_ru = 'Маленький' if animal.size == 'small' else ('Крупный' if animal.size == 'large' else 'Средний') %}
+        {% set status_ru = 'Доступен' if animal.status == 'available' else ('В процессе' if animal.status == 'processing' else 'Пристроен') %}
+        <details style="border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
+            <summary style="cursor:pointer; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <strong>{{ animal.name }}</strong>
+                <span class="text-muted">· {{ species_ru }}</span>
+                <span class="text-muted">· {{ status_ru }}</span>
+            </summary>
+            <form class="form-card" method="post" action="/shelter/animals/{{ animal.id }}/update" style="margin-top:12px;">
+                <input name="name" value="{{ animal.name }}" placeholder="Имя" required>
+                <select name="species" required>
+                    <option value="cat" {% if animal.species == 'cat' %}selected{% endif %}>Кошка</option>
+                    <option value="dog" {% if animal.species == 'dog' %}selected{% endif %}>Собака</option>
+                </select>
+                <input name="breed" value="{{ animal.breed or '' }}" placeholder="Порода">
+                <input name="age" type="number" min="0" value="{{ animal.age if animal.age is not none else '' }}" placeholder="Возраст">
+                <select name="sex">
+                    <option value="unknown" {% if animal.sex == 'unknown' %}selected{% endif %}>Не указан</option>
+                    <option value="male" {% if animal.sex == 'male' %}selected{% endif %}>Мальчик</option>
+                    <option value="female" {% if animal.sex == 'female' %}selected{% endif %}>Девочка</option>
+                </select>
+                <select name="size">
+                    <option value="small" {% if animal.size == 'small' %}selected{% endif %}>Маленький</option>
+                    <option value="medium" {% if animal.size == 'medium' %}selected{% endif %}>Средний</option>
+                    <option value="large" {% if animal.size == 'large' %}selected{% endif %}>Крупный</option>
+                </select>
+                <select name="status_value">
+                    <option value="available" {% if animal.status == 'available' %}selected{% endif %}>Доступен</option>
+                    <option value="processing" {% if animal.status == 'processing' %}selected{% endif %}>В процессе</option>
+                    <option value="adopted" {% if animal.status == 'adopted' %}selected{% endif %}>Пристроен</option>
+                </select>
+                <input name="color" value="{{ animal.color or '' }}" placeholder="Окрас">
+                <input name="health" value="{{ animal.health or '' }}" placeholder="Здоровье">
+                <input name="temperament" value="{{ animal.temperament or '' }}" placeholder="Характер">
+                <textarea name="description" placeholder="Описание">{{ animal.description or '' }}</textarea>
+                <label><input type="checkbox" name="compatible_with_children" {% if animal.compatible_with_children %}checked{% endif %}> Дружит с детьми</label>
+                <label><input type="checkbox" name="compatible_with_animals" {% if animal.compatible_with_animals %}checked{% endif %}> Дружит с животными</label>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="btn btn--primary btn--sm" type="submit">Сохранить</button>
+                    <button class="btn btn--outline btn--sm" type="submit" formaction="/shelter/animals/{{ animal.id }}/delete" formmethod="post" onclick="return confirm('Удалить анкету питомца?');">Удалить</button>
+                </div>
+            </form>
+        </details>
+        {% else %}
+        <p class="text-muted">Вы еще не добавили ни одной анкеты.</p>
+        {% endfor %}
+    </div>
+</section>
+<section>
+    <h2>Заявки на пристройство</h2>
+    <div class="table-wrap">
+        <table>
+            <tr><th>Питомец</th><th>Контакт</th><th>Комментарий</th><th>Статус</th><th>Действие</th></tr>
+            {% for item in applications %}
+            <tr>
+                <td>{{ item.animal_name }}</td>
+                <td>{{ item.applicant_name }}<br>{{ item.applicant_phone }}</td>
+                <td>{{ item.comment }}</td>
+                <td>{{ item.status }}</td>
+                <td>
+                    <form method="post" action="/shelter/applications/{{ item.id }}/status">
+                        <select name="status_value">
+                            <option value="processing">В работе</option>
+                            <option value="rejected">Отклонить</option>
+                            <option value="adopted">Пристроен</option>
+                        </select>
+                        <button class="btn btn--secondary btn--sm" type="submit">Обновить</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">Пока заявок нет</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет — domus{% endblock %}
+{% block content %}
+<section class="mb-lg">
+    <h1 class="mt-0">Личный кабинет</h1>
+    <p class="text-muted">Избранное и ваши заявки на пристройство.</p>
+</section>
+
+<section class="section-head">
+    <h2>Безопасность</h2>
+</section>
+<div class="card">
+    {% if password_result == "updated" %}<p class="alert success">Пароль успешно обновлен.</p>{% endif %}
+    {% if password_result == "wrong_current" %}<p class="alert error">Текущий пароль указан неверно.</p>{% endif %}
+    {% if password_result == "too_short" %}<p class="alert error">Новый пароль должен быть не короче 8 символов.</p>{% endif %}
+    <form method="post" action="/user/change-password" class="form-card">
+        <input type="password" name="current_password" placeholder="Текущий пароль" required>
+        <input type="password" name="new_password" placeholder="Новый пароль (минимум 8 символов)" minlength="8" required>
+        <button class="btn btn--primary" type="submit">Сменить пароль</button>
+    </form>
+</div>
+
+<section class="section-head">
+    <h2>Избранное</h2>
+</section>
+<div class="animal-grid">
+    {% for animal in favorites %}
+    {% with stagger=loop.index0 %}
+    {% include "partials/animal_card.html" %}
+    {% endwith %}
+    {% else %}
+    <p class="text-muted" style="grid-column: 1 / -1;">Пока пусто — добавьте питомцев со страницы поиска.</p>
+    {% endfor %}
+</div>
+
+<section class="section-head">
+    <h2>Мои заявки</h2>
+</section>
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr><th>Питомец</th><th>Приют</th><th>Статус</th><th>Дата</th></tr>
+        </thead>
+        <tbody>
+            {% for item in applications %}
+            <tr><td>{{ item.animal_name }}</td><td>{{ item.shelter_name }}</td><td>{{ item.status }}</td><td class="text-muted">{{ item.created_at }}</td></tr>
+            {% else %}
+            <tr><td colspan="4" class="text-muted">Заявок пока нет</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block scripts %}{% endblock %}

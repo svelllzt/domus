@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Поиск — domus{% endblock %}
+{% block content %}
+<section class="mb-lg">
+    <h1 class="mt-0">Поиск питомцев</h1>
+    <p class="text-muted">Мгновенная фильтрация без перезагрузки страницы.</p>
+</section>
+
+<div id="search-root" class="filter-mount" data-cities="{{ cities_json|e }}" data-can-favorite="{{ 'true' if not user or user.role == 'user' else 'false' }}">
+    <button type="button" class="btn-filter-mobile" id="filter-mobile-open" aria-expanded="false">
+        Фильтры <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+    </button>
+    <div class="filter-mobile-backdrop" id="filter-mobile-backdrop" hidden></div>
+
+    <div class="search-field-wrap">
+        <label class="search-field" for="search-query-input">
+            <span class="search-field__icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input class="search-field__input" type="search" id="search-query-input" name="query" autocomplete="off"
+                   placeholder="Поиск по кличке, породе или описанию...">
+        </label>
+    </div>
+
+    <div class="filter-panel" id="filter-panel">
+        <div class="filter-mobile-head">
+            <h2>Фильтры</h2>
+            <button type="button" class="btn btn--ghost btn--sm" id="filter-mobile-close" aria-label="Закрыть">✕</button>
+        </div>
+
+        <div id="filter-dropdowns">
+            <div class="filter-dropdown" data-dropdown="species">
+                <button type="button" class="filter-dropdown__trigger">Вид <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="filter-dropdown__panel" role="group">
+                    <label class="filter-check"><input type="checkbox" value="dog" data-filter-key="species"><span class="filter-check__box" aria-hidden="true"></span> Собаки</label>
+                    <label class="filter-check"><input type="checkbox" value="cat" data-filter-key="species"><span class="filter-check__box" aria-hidden="true"></span> Кошки</label>
+                </div>
+            </div>
+            <div class="filter-dropdown" data-dropdown="sex">
+                <button type="button" class="filter-dropdown__trigger">Пол <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="filter-dropdown__panel">
+                    <label class="filter-check"><input type="checkbox" value="male" data-filter-key="sex"><span class="filter-check__box" aria-hidden="true"></span> Самец</label>
+                    <label class="filter-check"><input type="checkbox" value="female" data-filter-key="sex"><span class="filter-check__box" aria-hidden="true"></span> Самка</label>
+                </div>
+            </div>
+            <div class="filter-dropdown" data-dropdown="size">
+                <button type="button" class="filter-dropdown__trigger">Размер <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="filter-dropdown__panel">
+                    <label class="filter-check"><input type="checkbox" value="small" data-filter-key="size"><span class="filter-check__box" aria-hidden="true"></span> Маленький</label>
+                    <label class="filter-check"><input type="checkbox" value="medium" data-filter-key="size"><span class="filter-check__box" aria-hidden="true"></span> Средний</label>
+                    <label class="filter-check"><input type="checkbox" value="large" data-filter-key="size"><span class="filter-check__box" aria-hidden="true"></span> Крупный</label>
+                </div>
+            </div>
+            <div class="filter-dropdown" data-dropdown="age">
+                <button type="button" class="filter-dropdown__trigger">Возраст <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="filter-dropdown__panel">
+                    <label class="filter-check"><input type="checkbox" value="0-1" data-filter-key="age"><span class="filter-check__box" aria-hidden="true"></span> До 1 года</label>
+                    <label class="filter-check"><input type="checkbox" value="1-3" data-filter-key="age"><span class="filter-check__box" aria-hidden="true"></span> 1–3 года</label>
+                    <label class="filter-check"><input type="checkbox" value="4-7" data-filter-key="age"><span class="filter-check__box" aria-hidden="true"></span> 4–7 лет</label>
+                    <label class="filter-check"><input type="checkbox" value="8+" data-filter-key="age"><span class="filter-check__box" aria-hidden="true"></span> От 8 лет</label>
+                </div>
+            </div>
+            <div class="filter-dropdown" data-dropdown="city">
+                <button type="button" class="filter-dropdown__trigger">Город <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="filter-dropdown__panel" id="filter-city-panel">
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn--primary" id="filter-mobile-done">Готово</button>
+    </div>
+
+    <div class="filter-chips-row" id="filter-chips-row">
+        <div class="filter-chips-row__chips" id="filter-chips" aria-live="polite"></div>
+        <button type="button" class="filter-reset" id="filter-reset-all">Сбросить все фильтры</button>
+    </div>
+</div>
+
+<div class="animal-grid" id="animal-grid"></div>
+<div class="load-more-wrap">
+    <button type="button" id="load-more" class="btn btn--secondary">Загрузить ещё</button>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/filters.js"></script>
+{% endblock %}

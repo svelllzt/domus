@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% set sp = animal.species or '' %}
+{% set species_ru = 'Кошка' if sp == 'cat' else ('Собака' if sp == 'dog' else sp) %}
+{% set sz = animal.size or 'medium' %}
+{% set size_ru = 'Маленький' if sz == 'small' else ('Крупный' if sz == 'large' else 'Средний') %}
+{% set sx = animal.sex or 'unknown' %}
+{% set sex_ru = 'Самец' if sx == 'male' else ('Самка' if sx == 'female' else 'Не указан') %}
+{% set main_src = photos[0].filename if photos else (animal.main_photo or 'placeholder.svg') %}
+{% block title %}{{ animal.name }} — domus{% endblock %}
+{% block content %}
+<article class="animal-detail-page">
+  <div class="gallery-layout">
+    <div class="gallery-main">
+      <img id="gallery-main-img" src="/static/uploads/{{ main_src }}" alt="{{ animal.name }}" width="800" height="450">
+    </div>
+    <div class="gallery-thumbs" role="tablist" aria-label="Фотографии">
+      {% if photos %}
+        {% for photo in photos %}
+        <button type="button" class="gallery-thumb{% if loop.first %} is-active{% endif %}" data-src="/static/uploads/{{ photo.filename }}" aria-label="Фото {{ loop.index }}">
+          <img src="/static/uploads/{{ photo.filename }}" alt="" loading="lazy">
+        </button>
+        {% endfor %}
+      {% else %}
+        <button type="button" class="gallery-thumb is-active" data-src="/static/uploads/{{ main_src }}" aria-hidden="true">
+          <img src="/static/uploads/{{ main_src }}" alt="">
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <aside class="animal-detail-aside">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <h1 class="mt-0">{{ animal.name }}</h1>
+      {% if user and user.role == 'user' %}
+      <button type="button" class="fav-btn btn btn--outline btn--sm" data-animal-id="{{ animal.id }}" aria-label="Избранное">
+        {% if is_favorite %}<i class="fa-solid fa-heart"></i>{% else %}<i class="fa-regular fa-heart"></i>{% endif %}
+      </button>
+      {% endif %}
+    </div>
+    <p class="text-muted">
+      {{ animal.shelter_name }}{% if animal.shelter_city %} · {{ animal.shelter_city }}{% endif %}
+    </p>
+
+    <div class="spec-grid">
+      <div class="spec-item"><i class="fa-solid fa-paw" aria-hidden="true"></i><div><span>Вид</span><br><strong>{{ species_ru }}</strong></div></div>
+      <div class="spec-item"><i class="fa-solid fa-cake-candles" aria-hidden="true"></i><div><span>Возраст</span><br><strong>{% if animal.age is not none %}{{ animal.age }} лет{% else %}—{% endif %}</strong></div></div>
+      <div class="spec-item"><i class="fa-solid fa-ruler-vertical" aria-hidden="true"></i><div><span>Размер</span><br><strong>{{ size_ru }}</strong></div></div>
+      <div class="spec-item"><i class="fa-solid fa-venus-mars" aria-hidden="true"></i><div><span>Пол</span><br><strong>{{ sex_ru }}</strong></div></div>
+      <div class="spec-item"><i class="fa-solid fa-palette" aria-hidden="true"></i><div><span>Окрас</span><br><strong>{{ animal.color or '—' }}</strong></div></div>
+      <div class="spec-item"><i class="fa-solid fa-syringe" aria-hidden="true"></i><div><span>Здоровье</span><br><strong>{{ animal.health or '—' }}</strong></div></div>
+      {% if animal.temperament %}
+      <div class="spec-item"><i class="fa-solid fa-heart" aria-hidden="true"></i><div><span>Характер</span><br><strong>{{ animal.temperament }}</strong></div></div>
+      {% endif %}
+    </div>
+
+    {% if user and user.role == 'user' and animal.status == 'available' %}
+    <a class="btn btn--cta btn--lg" href="#meet-form">Познакомиться</a>
+    {% elif not user %}
+    <a class="btn btn--cta btn--lg" href="/auth/login?next=/animals/{{ animal.id }}">Войти, чтобы познакомиться</a>
+    {% else %}
+    <button class="btn btn--cta btn--lg" type="button" disabled>Познакомиться</button>
+    {% endif %}
+
+    <section class="block-about">
+      <h2>О животном</h2>
+      <p>{{ animal.description or 'Описание появится позже.' }}</p>
+    </section>
+
+    {% if user and user.role == 'user' and animal.status == 'available' %}
+    <form id="meet-form" class="form-card" action="/animals/{{ animal.id }}/apply" method="post">
+      <h2>Оставить заявку</h2>
+      <input name="applicant_name" type="text" placeholder="Ваше имя" required autocomplete="name">
+      <input name="applicant_phone" type="tel" placeholder="Телефон" required autocomplete="tel">
+      <textarea name="comment" rows="3" placeholder="Комментарий"></textarea>
+      <button class="btn btn--primary" type="submit">Отправить заявку</button>
+    </form>
+    {% endif %}
+  </aside>
+</article>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll(".gallery-thumb").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const main = document.getElementById("gallery-main-img");
+    if (!main) return;
+    main.src = btn.dataset.src;
+    document.querySelectorAll(".gallery-thumb").forEach((b) => b.classList.remove("is-active"));
+    btn.classList.add("is-active");
+  });
+});
+</script>
+{% endblock %}
