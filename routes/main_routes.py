@@ -23,6 +23,7 @@ def index(request: Request):
             animal["is_favorite"] = animal["id"] in favorite_ids
     shelters = ShelterModel.list_approved()
     return templates.TemplateResponse(
+        request=request,
         name="index.html",
         context={"request": request, "user": user, "animals": animals[:6], "shelters": shelters},
     )
@@ -40,6 +41,7 @@ def search_page(request: Request):
     shelters = ShelterModel.list_approved()
     cities = sorted({s["city"] for s in shelters if s.get("city")})
     return templates.TemplateResponse(
+        request=request,
         name="search.html",
         context={
             "request": request,
@@ -60,6 +62,7 @@ def animal_detail(request: Request, animal_id: int):
     photos = AnimalModel.get_photos(animal_id)
     is_favorite = bool(user and FavoriteModel.is_favorite(user["id"], animal_id))
     return templates.TemplateResponse(
+        request=request,
         name="animal_detail.html",
         context={
             "request": request,
@@ -109,6 +112,7 @@ def apply_for_animal(
 @router.get("/about")
 def about_page(request: Request):
     return templates.TemplateResponse(
+        request=request,
         name="about.html",
         context={"request": request, "user": get_current_user(request)},
     )
