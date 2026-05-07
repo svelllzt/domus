@@ -97,6 +97,13 @@ class AnimalModel:
             return [dict(row) for row in cursor.fetchall()]
 
     @staticmethod
+    def count_photos(animal_id: int) -> int:
+        with get_db_cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) as total FROM animal_photos WHERE animal_id = ?", (animal_id,))
+            row = cursor.fetchone()
+            return int(row["total"]) if row else 0
+
+    @staticmethod
     def _append_filter_sql(query: str, params: list[Any], filters: dict[str, Any]) -> tuple[str, list[Any]]:
         species = _as_str_list(filters.get("species"))
         if species:

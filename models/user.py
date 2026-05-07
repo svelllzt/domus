@@ -61,6 +61,11 @@ class UserModel:
             )
             return [dict(row) for row in cursor.fetchall()]
 
+    @staticmethod
+    def delete_by_shelter(shelter_id: int) -> None:
+        with get_db_cursor() as cursor:
+            cursor.execute("DELETE FROM users WHERE shelter_id = ?", (shelter_id,))
+
 
 class VerificationTokenModel:
     @staticmethod

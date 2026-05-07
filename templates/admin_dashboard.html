@@ -67,5 +67,27 @@
             {% endfor %}
         </table>
     </div>
+
+    <h2>Все приюты</h2>
+    <div class="table-wrap">
+        <table>
+            <tr><th>Название</th><th>Город</th><th>Телефон</th><th>Статус</th><th>Действие</th></tr>
+            {% for shelter in shelters %}
+            <tr>
+                <td>{{ shelter.name }}</td>
+                <td>{{ shelter.city or '—' }}</td>
+                <td>{{ shelter.phone or '—' }}</td>
+                <td>{% if shelter.is_approved %}Одобрен{% else %}Не одобрен{% endif %}</td>
+                <td>
+                    <form method="post" action="/admin/shelters/{{ shelter.id }}/revoke" onsubmit="return confirm('Отозвать доступ у приюта? Будут удалены аккаунт(ы) приюта и все опубликованные анкеты.');">
+                        <button class="btn btn--danger btn--sm" type="submit">Отозвать доступ</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">Приютов пока нет</td></tr>
+            {% endfor %}
+        </table>
+    </div>
 </section>
 {% endblock %}

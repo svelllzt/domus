@@ -15,7 +15,7 @@ IS_PRODUCTION = APP_ENV == "production"
 APP_BASE_URL = os.getenv("PETS_APP_BASE_URL", "http://").rstrip("/")
 SMTP_ENCRYPTION_KEY = os.getenv("PETS_SMTP_ENCRYPTION_KEY", "")
 
-SESSION_COOKIE_NAME = "pets_session"
+SESSION_COOKIE_NAME = "domus_session"
 SESSION_COOKIE_MAX_AGE = int(os.getenv("PETS_SESSION_MAX_AGE", str(7 * 24 * 60 * 60)))
 TOKEN_SALT = ""
 EMAIL_TOKEN_SALT = ""

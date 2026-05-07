@@ -30,7 +30,8 @@
         <textarea name="description" placeholder="Описание"></textarea>
         <label><input type="checkbox" name="compatible_with_children"> Дружит с детьми</label>
         <label><input type="checkbox" name="compatible_with_animals"> Дружит с животными</label>
-        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp">
+        <input type="file" name="photos" accept=".jpg,.jpeg,.png,.webp" multiple>
+        <p class="text-muted">Можно загрузить до 5 фото питомца.</p>
         <button class="btn btn--primary" type="submit">Добавить</button>
     </form>
 </section>
@@ -48,7 +49,7 @@
                 <span class="text-muted">· {{ species_ru }}</span>
                 <span class="text-muted">· {{ status_ru }}</span>
             </summary>
-            <form class="form-card" method="post" action="/shelter/animals/{{ animal.id }}/update" style="margin-top:12px;">
+            <form class="form-card" method="post" action="/shelter/animals/{{ animal.id }}/update" enctype="multipart/form-data" style="margin-top:12px;">
                 <input name="name" value="{{ animal.name }}" placeholder="Имя" required>
                 <select name="species" required>
                     <option value="cat" {% if animal.species == 'cat' %}selected{% endif %}>Кошка</option>
@@ -77,6 +78,8 @@
                 <textarea name="description" placeholder="Описание">{{ animal.description or '' }}</textarea>
                 <label><input type="checkbox" name="compatible_with_children" {% if animal.compatible_with_children %}checked{% endif %}> Дружит с детьми</label>
                 <label><input type="checkbox" name="compatible_with_animals" {% if animal.compatible_with_animals %}checked{% endif %}> Дружит с животными</label>
+                <input type="file" name="photos" accept=".jpg,.jpeg,.png,.webp" multiple>
+                <p class="text-muted">Можно добавить еще фото (всего до 5 на анкету).</p>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <button class="btn btn--primary btn--sm" type="submit">Сохранить</button>
                     <button class="btn btn--outline btn--sm" type="submit" formaction="/shelter/animals/{{ animal.id }}/delete" formmethod="post" onclick="return confirm('Удалить анкету питомца?');">Удалить</button>

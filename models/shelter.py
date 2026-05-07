@@ -43,3 +43,8 @@ class ShelterModel:
         with get_db_cursor() as cursor:
             cursor.execute("SELECT * FROM shelters ORDER BY created_at DESC")
             return [dict(row) for row in cursor.fetchall()]
+
+    @staticmethod
+    def delete(shelter_id: int) -> None:
+        with get_db_cursor() as cursor:
+            cursor.execute("DELETE FROM shelters WHERE id = ?", (shelter_id,))

@@ -15,6 +15,7 @@ ALLOWED_SPECIES = {"cat", "dog"}
 ALLOWED_SEX = {"unknown", "male", "female"}
 ALLOWED_SIZE = {"small", "medium", "large"}
 ALLOWED_ANIMAL_STATUS = {"available", "processing", "adopted"}
+MAX_PHOTOS_PER_ANIMAL = 5
 
 
 def _save_photo(photo: UploadFile) -> str:
@@ -36,6 +37,28 @@ def _save_photo(photo: UploadFile) -> str:
 def _normalize_choice(value: str, allowed: set[str], fallback: str) -> str:
     clean_value = sanitize_text(value)
     return clean_value if clean_value in allowed else fallback
+
+
+def _attach_uploaded_photos(animal_id: int, photos: list[UploadFile]) -> None:
+    if not photos:
+        return
+    existing_count = AnimalModel.count_photos(animal_id)
+    slots_left = max(MAX_PHOTOS_PER_ANIMAL - existing_count, 0)
+    if slots_left == 0:
+        return
+
+    uploaded = 0
+    for photo in photos:
+        if uploaded >= slots_left:
+            break
+        if not photo or not photo.filename:
+            continue
+        try:
+            filename = _save_photo(photo)
+        except ValueError:
+            continue
+        AnimalModel.add_photo(animal_id, filename, is_main=(existing_count == 0 and uploaded == 0))
+        uploaded += 1
 
 
 @router.get("/dashboard")
@@ -90,7 +113,7 @@ def create_animal(
     compatible_with_children: bool = Form(False),
     compatible_with_animals: bool = Form(False),
     status_value: str = Form("available"),
-    photo: UploadFile | None = File(None),
+    photos: list[UploadFile] = File(default=[]),
 ):
     user = get_current_user(request)
     if not has_role(user, {"shelter_admin", "shelter_staff"}) or not user.get("shelter_id"):
@@ -114,12 +137,7 @@ def create_animal(
             "shelter_id": user["shelter_id"],
         }
     )
-    if photo and photo.filename:
-        try:
-            filename = _save_photo(photo)
-            AnimalModel.add_photo(animal_id, filename, is_main=True)
-        except ValueError:
-            pass
+    _attach_uploaded_photos(animal_id, photos)
     return RedirectResponse("/shelter/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -140,6 +158,7 @@ def update_animal(
     status_value: str = Form("available"),
     compatible_with_children: bool = Form(False),
     compatible_with_animals: bool = Form(False),
+    photos: list[UploadFile] = File(default=[]),
 ):
     user = get_current_user(request)
     if not has_role(user, {"shelter_admin", "shelter_staff"}) or not user.get("shelter_id"):
@@ -167,6 +186,7 @@ def update_animal(
             "compatible_with_animals": compatible_with_animals,
         },
     )
+    _attach_uploaded_photos(animal_id, photos)
     return RedirectResponse("/shelter/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
 

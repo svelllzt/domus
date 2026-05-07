@@ -70,6 +70,21 @@ def reject_shelter_request(request: Request, request_id: int, admin_comment: str
     return RedirectResponse("/admin/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
 
+@router.post("/shelters/{shelter_id}/revoke")
+def revoke_shelter_access(request: Request, shelter_id: int):
+    user = get_current_user(request)
+    if not has_role(user, {"global_admin"}):
+        return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+
+    shelter = ShelterModel.get_by_id(shelter_id)
+    if not shelter:
+        return RedirectResponse("/admin/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+
+    UserModel.delete_by_shelter(shelter_id)
+    ShelterModel.delete(shelter_id)
+    return RedirectResponse("/admin/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+
+
 @router.post("/smtp-settings")
 def save_smtp_settings(
     request: Request,
