@@ -72,8 +72,9 @@ def login_page(request: Request):
         "bad_token": "Ссылка недействительна или устарела.",
     }
     return templates.TemplateResponse(
-        "login.html",
-        {
+        request=request,
+        name="login.html",
+        context={
             "request": request,
             "next": next_path,
             "success": success_map.get(success, ""),
@@ -93,14 +94,16 @@ def login(
     user = UserModel.get_by_email(_normalize_email(email))
     if not user or not password_context.verify(password, user["password_hash"]):
         return templates.TemplateResponse(
-            "login.html",
-            {"request": request, "error": "Неверный email или пароль", "next": safe_next},
+            request=request,
+            name="login.html",
+            context={"request": request, "error": "Неверный email или пароль", "next": safe_next},
             status_code=status.HTTP_400_BAD_REQUEST,
         )
     if not user.get("is_verified") and user.get("role") != "global_admin":
         return templates.TemplateResponse(
-            "login.html",
-            {
+            request=request,
+            name="login.html",
+            context={
                 "request": request,
                 "error": "Подтвердите email перед входом. Введите код на странице подтверждения.",
                 "next": safe_next,
@@ -123,7 +126,7 @@ def login(
 
 @router.get("/register")
 def register_page(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="register.html", context={"request": request})
 
 
 @router.post("/register")
@@ -141,14 +144,16 @@ def register(
     existing_user = UserModel.get_by_email(safe_email)
     if existing_user and existing_user.get("is_verified"):
         return templates.TemplateResponse(
-            "register.html",
-            {"request": request, "error": "Пользователь с таким email уже существует"},
+            request=request,
+            name="register.html",
+            context={"request": request, "error": "Пользователь с таким email уже существует"},
             status_code=status.HTTP_400_BAD_REQUEST,
         )
     if existing_user and existing_user.get("role") == "global_admin":
         return templates.TemplateResponse(
-            "register.html",
-            {"request": request, "error": "Этот email зарезервирован и недоступен для регистрации."},
+            request=request,
+            name="register.html",
+            context={"request": request, "error": "Этот email зарезервирован и недоступен для регистрации."},
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -185,8 +190,9 @@ def register(
         send_verification_email(safe_email, code)
     except Exception:
         return templates.TemplateResponse(
-            "login.html",
-            {
+            request=request,
+            name="login.html",
+            context={
                 "request": request,
                 "error": "Аккаунт создан, но письмо не отправилось. Обратитесь к администратору.",
             },
@@ -195,8 +201,9 @@ def register(
     _mark_code_sent(safe_email, reset=True)
 
     return templates.TemplateResponse(
-        "verify_email.html",
-        {
+        request=request,
+        name="verify_email.html",
+        context={
             "request": request,
             "email": safe_email,
             "success": "Аккаунт создан. Введите 6-значный код из письма.",
@@ -209,8 +216,9 @@ def register(
 def verify_email_page(request: Request, email: str = ""):
     safe_email = _normalize_email(email)
     return templates.TemplateResponse(
-        "verify_email.html",
-        {"request": request, "email": safe_email, "retry_after": _resend_wait_seconds(safe_email)},
+        request=request,
+        name="verify_email.html",
+        context={"request": request, "email": safe_email, "retry_after": _resend_wait_seconds(safe_email)},
     )
 
 
@@ -220,16 +228,18 @@ def verify_email(request: Request, email: str = Form(...), code: str = Form(...)
     user = UserModel.get_by_email(safe_email)
     if not user:
         return templates.TemplateResponse(
-            "verify_email.html",
-            {"request": request, "email": safe_email, "error": "Пользователь с таким email не найден."},
+            request=request,
+            name="verify_email.html",
+            context={"request": request, "email": safe_email, "error": "Пользователь с таким email не найден."},
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
     normalized_code = "".join(ch for ch in (code or "") if ch.isdigit())[:6]
     if len(normalized_code) != 6:
         return templates.TemplateResponse(
-            "verify_email.html",
-            {"request": request, "email": safe_email, "error": "Код должен содержать 6 цифр."},
+            request=request,
+            name="verify_email.html",
+            context={"request": request, "email": safe_email, "error": "Код должен содержать 6 цифр."},
             status_code=status.HTTP_400_BAD_REQUEST,
         )
     token_data = VerificationTokenModel.get_valid_for_user(user["id"], normalized_code, "email_verify")
@@ -241,8 +251,9 @@ def verify_email(request: Request, email: str = Form(...), code: str = Form(...)
                 token_data = latest
     if not token_data:
         return templates.TemplateResponse(
-            "verify_email.html",
-            {
+            request=request,
+            name="verify_email.html",
+            context={
                 "request": request,
                 "email": safe_email,
                 "error": "Неверный или просроченный код.",
@@ -264,8 +275,9 @@ def resend_verify_code(request: Request, email: str = Form(...)):
     user = UserModel.get_by_email(safe_email)
     if not user:
         return templates.TemplateResponse(
-            "verify_email.html",
-            {"request": request, "email": safe_email, "error": "Пользователь с таким email не найден."},
+            request=request,
+            name="verify_email.html",
+            context={"request": request, "email": safe_email, "error": "Пользователь с таким email не найден."},
             status_code=status.HTTP_400_BAD_REQUEST,
         )
     if user.get("is_verified"):
@@ -274,8 +286,9 @@ def resend_verify_code(request: Request, email: str = Form(...)):
     wait = _resend_wait_seconds(safe_email)
     if wait > 0:
         return templates.TemplateResponse(
-            "verify_email.html",
-            {
+            request=request,
+            name="verify_email.html",
+            context={
                 "request": request,
                 "email": safe_email,
                 "error": f"Подождите {wait} сек. перед повторной отправкой кода.",
@@ -296,8 +309,9 @@ def resend_verify_code(request: Request, email: str = Form(...)):
         send_verification_email(safe_email, code)
     except Exception:
         return templates.TemplateResponse(
-            "verify_email.html",
-            {
+            request=request,
+            name="verify_email.html",
+            context={
                 "request": request,
                 "email": safe_email,
                 "error": "Не удалось отправить код. Попробуйте позже.",
@@ -306,8 +320,9 @@ def resend_verify_code(request: Request, email: str = Form(...)):
         )
     _mark_code_sent(safe_email, reset=False)
     return templates.TemplateResponse(
-        "verify_email.html",
-        {
+        request=request,
+        name="verify_email.html",
+        context={
             "request": request,
             "email": safe_email,
             "success": "Новый код отправлен на почту.",
@@ -318,7 +333,7 @@ def resend_verify_code(request: Request, email: str = Form(...)):
 
 @router.get("/restore-password")
 def restore_password_page(request: Request):
-    return templates.TemplateResponse("restore_password.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="restore_password.html", context={"request": request})
 
 
 @router.post("/restore-password")
@@ -336,16 +351,18 @@ def restore_password_request(request: Request, email: str = Form(...)):
             send_password_reset_email(user["email"], token)
         except Exception:
             return templates.TemplateResponse(
-                "restore_password.html",
-                {
+                request=request,
+                name="restore_password.html",
+                context={
                     "request": request,
                     "error": "Не удалось отправить письмо. Попробуйте позже.",
                 },
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
     return templates.TemplateResponse(
-        "restore_password.html",
-        {
+        request=request,
+        name="restore_password.html",
+        context={
             "request": request,
             "success": "Если email существует, мы отправили ссылку для смены пароля.",
         },
@@ -357,7 +374,11 @@ def reset_password_page(request: Request, token: str):
     token_data = VerificationTokenModel.get_valid(token, "password_reset")
     if not token_data:
         return RedirectResponse("/auth/restore-password?error=bad_token", status_code=status.HTTP_303_SEE_OTHER)
-    return templates.TemplateResponse("restore_password.html", {"request": request, "token": token})
+    return templates.TemplateResponse(
+        request=request,
+        name="restore_password.html",
+        context={"request": request, "token": token},
+    )
 
 
 @router.post("/reset-password")
